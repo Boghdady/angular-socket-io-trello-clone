@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CurrentUserInterface } from '../../types/currentUser.interface';
 import { RegisterRequestInterface } from '../../types/registerRequest.interface';
@@ -10,8 +11,12 @@ import { RegisterRequestInterface } from '../../types/registerRequest.interface'
   templateUrl: './register.component.html',
 })
 export class RegisterComponent {
-  error: string | null = null;
-  constructor(private fb: FormBuilder, private authService: AuthService) {}
+  errorMessage: string | null = null;
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   form = this.fb.group({
     email: ['', Validators.required],
@@ -26,9 +31,11 @@ export class RegisterComponent {
         next: (currentUser: CurrentUserInterface) => {
           this.authService.setToken(currentUser);
           this.authService.setCurrentUser(currentUser);
+          this.errorMessage = null;
+          this.router.navigateByUrl('/');
         },
         error: (err: HttpErrorResponse) => {
-          this.error = err.error.message;
+          this.errorMessage = err.error.message;
         },
       });
   }

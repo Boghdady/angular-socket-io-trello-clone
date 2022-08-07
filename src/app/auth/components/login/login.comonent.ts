@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CurrentUserInterface } from '../../types/currentUser.interface';
 import { LoginRequestInterface } from '../../types/loginRequest.interface';
@@ -10,8 +11,12 @@ import { LoginRequestInterface } from '../../types/loginRequest.interface';
   templateUrl: './login.component.html',
 })
 export class LoginComponent {
-  error: string | null = null;
-  constructor(private fb: FormBuilder, private authService: AuthService) {}
+  errorMessage: string | null = null;
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   form = this.fb.group({
     email: ['', Validators.required],
@@ -23,10 +28,11 @@ export class LoginComponent {
       next: (currentUser: CurrentUserInterface) => {
         this.authService.setToken(currentUser);
         this.authService.setCurrentUser(currentUser);
-        console.log('Success login');
+        this.errorMessage = null;
+        this.router.navigateByUrl('/');
       },
       error: (err: HttpErrorResponse) => {
-        this.error = err.error.message;
+        this.errorMessage = err.error.message;
       },
     });
   }
